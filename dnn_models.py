@@ -30,8 +30,8 @@ class AdditiveMarginSoftmax(nn.Module):
     def __init__(self):
         super().__init__()
 
-    def forward(self, logits, labels):
-        loss = (labels-logits)*(labels-logits)
+    def forward(self, input, target):
+        loss = (input-target)*(input-target)
         return loss
     
 class sinc_conv(nn.Module):
@@ -112,8 +112,8 @@ def act_fun(act_type):
     return nn.ELU()
                      
  if act_type=="softmax":
-    #return nn.LogSoftmax(dim=1)
-    return AdditiveMarginSoftmax()
+    return nn.LogSoftmax(dim=1)
+    #return AdditiveMarginSoftmax()
         
  if act_type=="linear":
     return nn.LeakyReLU(1) # initializzed like this, but not used in forward!

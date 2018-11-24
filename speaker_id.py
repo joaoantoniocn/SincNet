@@ -57,7 +57,14 @@ def create_batches_rnd(batch_size,data_folder,wav_lst,N_snt,wlen,lab_dict,fact_a
   
  return inp,lab  
 
+class AdditiveMarginSoftmax(nn.Module):
+    # AMSoftmax
+    def __init__(self):
+        super().__init__()
 
+    def forward(self, input, target):
+        loss = (input-target)*(input-target)
+        return loss
 
 # Reading cfg file
 options=read_conf()
@@ -136,8 +143,8 @@ torch.manual_seed(seed)
 np.random.seed(seed)
 
 # loss function
-cost = nn.NLLLoss()
-
+#cost = nn.NLLLoss()
+cost = AdditiveMarginSoftmax()
   
 # Converting context and shift in samples
 wlen=int(fs*cw_len/1000.00)
