@@ -63,6 +63,14 @@ class AdditiveMarginSoftmax(nn.Module):
         super().__init__()
 
     def forward(self, input, target):
+        print("--------------------")
+        print("input " + str(input.shape))
+        print(input)
+
+        print("--------------------")
+        print("target " + str(target.shape))
+        print(target)
+
         loss = (input-target)*(input-target)
         return loss
 
@@ -236,6 +244,7 @@ for epoch in range(N_epochs):
     
     pred=torch.max(pout,dim=1)[1]
     loss = cost(pout, lab.long())
+    #loss = cost(pred, lab.long())
     err = torch.mean((pred!=lab.long()).float())
     
    
