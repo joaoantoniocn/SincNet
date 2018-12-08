@@ -59,20 +59,60 @@ def create_batches_rnd(batch_size,data_folder,wav_lst,N_snt,wlen,lab_dict,fact_a
 
 class AdditiveMarginSoftmax(nn.Module):
     # AMSoftmax
-    def __init__(self):
+    def __init__(self, margin=0.35, s=30):
         super().__init__()
 
-    def forward(self, input, target):
-        print("--------------------")
-        print("input " + str(input.shape))
-        print(input)
+        self.m = margin #
+        self.s = s
 
-        print("--------------------")
-        print("target " + str(target.shape))
-        print(target)
+    def forward(self, predicted, target):
+        # --- david ---
+        #ndexes = range(predicted.size(0))
+        #probabilities = nn.Softmax(dim=1)(predicted)
+        #max_probability = probabilities[indexes, target]
+        #print("size:", max_probability.size())
+        #print(max_probability)
+        #print("CROSS-ENTROPY", -torch.log(max_probability).mean())
+        # return -torch.log(max_probability).mean() # calculada david
+        # ---
+        # --- pytorch ---
+        #loss = nn.NLLLoss()
+        #return loss(predicted, target)
+        # ---
 
-        loss = (input-target)*(input-target)
-        return loss
+        # ------------ AM Softmax ------------ #
+        predicted = predicted / predicted.norm(p=2, dim=0)
+        indexes = range(predicted.size(0))
+        cos_theta_y = predicted[indexes, target]
+        cos_theta_y_m = cos_theta_y - self.m
+        exp_s = np.e ** (self.s * cos_theta_y_m)
+        #sum_cos_theta_j = torch.zeros(1, predicted.size(0)).cuda()
+
+        #print("exp_s: ", exp_s)
+
+        # i-ésima amostra
+        #for i in range(predicted.size(0)):
+            #sum = 0
+            # j-ésima saída
+            #for j in range(predicted.size(1)):
+                # somatório de todas as saídas excluindo a que deveria ter sido predita
+            #    if(j != target[i]):
+            #        sum += np.e **(predicted[i][j] * self.s)
+
+            #print("sum: ", sum)
+            #print("i: ", i)
+            #print("sum_cos_theta_j: ", sum_cos_theta_j.shape)
+            #sum_cos_theta_j[0, i] = sum
+            #sum_cos_theta_j[0, i] = (np.e ** (predicted[i] * self.s)).sum() - np.e ** (predicted[i][target[i]] * self.s)
+        sum_cos_theta_j = (np.e ** (predicted * self.s)).sum(dim=1) - (np.e ** (predicted[indexes, target] * self.s))
+        #print("sum_cos_theta_j ", sum_cos_theta_j)
+        log = -torch.log(exp_s/(exp_s+sum_cos_theta_j)).mean()
+
+#        print("minha loss: ", log)
+        return log
+
+
+
 
 # Reading cfg file
 options=read_conf()
@@ -244,6 +284,8 @@ for epoch in range(N_epochs):
     
     pred=torch.max(pout,dim=1)[1]
     loss = cost(pout, lab.long())
+    #print("loss x: " + str(loss.item()))
+    #print(loss)
     #loss = cost(pred, lab.long())
     err = torch.mean((pred!=lab.long()).float())
     
@@ -321,6 +363,7 @@ for epoch in range(N_epochs):
     
      pred=torch.max(pout,dim=1)[1]
      loss = cost(pout, lab.long())
+    # loss = cost(pred, lab.long())
      err = torch.mean((pred!=lab.long()).float())
     
      [val,best_class]=torch.max(torch.sum(pout,dim=0),0)
