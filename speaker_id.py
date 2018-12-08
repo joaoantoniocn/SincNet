@@ -66,19 +66,6 @@ class AdditiveMarginSoftmax(nn.Module):
         self.s = s
 
     def forward(self, predicted, target):
-        # --- david ---
-        #ndexes = range(predicted.size(0))
-        #probabilities = nn.Softmax(dim=1)(predicted)
-        #max_probability = probabilities[indexes, target]
-        #print("size:", max_probability.size())
-        #print(max_probability)
-        #print("CROSS-ENTROPY", -torch.log(max_probability).mean())
-        # return -torch.log(max_probability).mean() # calculada david
-        # ---
-        # --- pytorch ---
-        #loss = nn.NLLLoss()
-        #return loss(predicted, target)
-        # ---
 
         # ------------ AM Softmax ------------ #
         predicted = predicted / predicted.norm(p=2, dim=0)
@@ -86,29 +73,11 @@ class AdditiveMarginSoftmax(nn.Module):
         cos_theta_y = predicted[indexes, target]
         cos_theta_y_m = cos_theta_y - self.m
         exp_s = np.e ** (self.s * cos_theta_y_m)
-        #sum_cos_theta_j = torch.zeros(1, predicted.size(0)).cuda()
 
-        #print("exp_s: ", exp_s)
-
-        # i-ésima amostra
-        #for i in range(predicted.size(0)):
-            #sum = 0
-            # j-ésima saída
-            #for j in range(predicted.size(1)):
-                # somatório de todas as saídas excluindo a que deveria ter sido predita
-            #    if(j != target[i]):
-            #        sum += np.e **(predicted[i][j] * self.s)
-
-            #print("sum: ", sum)
-            #print("i: ", i)
-            #print("sum_cos_theta_j: ", sum_cos_theta_j.shape)
-            #sum_cos_theta_j[0, i] = sum
-            #sum_cos_theta_j[0, i] = (np.e ** (predicted[i] * self.s)).sum() - np.e ** (predicted[i][target[i]] * self.s)
         sum_cos_theta_j = (np.e ** (predicted * self.s)).sum(dim=1) - (np.e ** (predicted[indexes, target] * self.s))
-        #print("sum_cos_theta_j ", sum_cos_theta_j)
+
         log = -torch.log(exp_s/(exp_s+sum_cos_theta_j)).mean()
 
-#        print("minha loss: ", log)
         return log
 
 
