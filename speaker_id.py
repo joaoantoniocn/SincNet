@@ -370,6 +370,6 @@ for epoch in range(N_epochs):
    torch.save(checkpoint,output_folder+'/model_raw.pkl')
   
   else:
-   print("epoch %i, loss_tr=%f err_tr=%f" % (epoch, loss_tot,err_tot))
+   print("epoch %i / %i, loss_tr=%f err_tr=%f" % (epoch, N_epochs, loss_tot,err_tot))
 
 
