@@ -65,6 +65,7 @@ class AdditiveMarginSoftmax(nn.Module):
         self.m = margin #
         self.s = s
         self.epsilon = 0.000000000001
+        print('AMSoftmax m = ' + str(margin))
 
     def forward(self, predicted, target):
 
@@ -86,6 +87,7 @@ class AdditiveMarginSoftmax(nn.Module):
 
 # Reading cfg file
 options=read_conf()
+
 
 #[data]
 tr_lst=options.tr_lst
@@ -161,8 +163,15 @@ torch.manual_seed(seed)
 np.random.seed(seed)
 
 # loss function
-#cost = nn.NLLLoss()
-cost = AdditiveMarginSoftmax()
+
+if (options.AMSoftmax == 'True'):
+    cost = AdditiveMarginSoftmax(margin=options.AMSoftmax_m)
+    print('Using AMSoftmax loss function...')
+else:
+    cost = nn.NLLLoss()
+    print('Using Softmax loss function...')
+
+
   
 # Converting context and shift in samples
 wlen=int(fs*cw_len/1000.00)
