@@ -165,11 +165,12 @@ np.random.seed(seed)
 # loss function
 
 if (options.AMSoftmax == 'True'):
-    cost = AdditiveMarginSoftmax(margin=options.AMSoftmax_m)
     print('Using AMSoftmax loss function...')
+    cost = AdditiveMarginSoftmax(margin=float(options.AMSoftmax_m))
+
 else:
-    cost = nn.NLLLoss()
     print('Using Softmax loss function...')
+    cost = nn.NLLLoss()
 
 
   
