@@ -367,7 +367,7 @@ for epoch in range(N_epochs):
                'DNN1_model_par': DNN1_net.state_dict(),
                'DNN2_model_par': DNN2_net.state_dict(),
                }
-   torch.save(checkpoint,output_folder+'/model_raw.pkl')
+   torch.save(checkpoint,output_folder+'/model_raw_'+ str(epoch) +'.pkl')
   
   else:
    print("epoch %i / %i, loss_tr=%f err_tr=%f" % (epoch, N_epochs, loss_tot,err_tot))
